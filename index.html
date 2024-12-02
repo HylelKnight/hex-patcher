@@ -7,16 +7,39 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
             padding: 20px;
-            background-color: #f4f4f4;
         }
         input, button {
             padding: 10px;
             margin: 5px;
             font-size: 16px;
+            background-color: #2e2e2e;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            border-radius: 5px;
         }
-        #fileInput {
-            margin-top: 20px;
+        input:focus, button:focus {
+            outline: none;
+            border-color: #007acc;
+        }
+        button {
+            cursor: pointer;
+            background-color: #3a3a3a;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        label {
+            margin-right: 10px;
+        }
+        #applyPatchButton {
+            background-color: #444;
+            border: 1px solid #555;
+        }
+        #applyPatchButton:hover {
+            background-color: #555;
         }
         #result {
             margin-top: 20px;
@@ -35,7 +58,7 @@
     <label for="patch">Patch (in hex, e.g. 01 23 45):</label>
     <input type="text" id="patch" value="01 23 45"/>
     <br/>
-    <button onclick="applyPatch()">Apply Patch</button>
+    <button id="applyPatchButton" onclick="applyPatch()">Apply Patch</button>
 
     <div id="result"></div>
 
