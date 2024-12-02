@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Patcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        #fileInput {
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hex Patcher</h1>
+    <p>Upload a file and specify the hex offset and patch.</p>
+
+    <input type="file" id="fileInput" accept=".bin,.exe,.dat,.txt" />
+    <br/>
+    <label for="offset">Offset (in hex, e.g. 0x10):</label>
+    <input type="text" id="offset" value="0x10"/>
+    <br/>
+    <label for="patch">Patch (in hex, e.g. 01 23 45):</label>
+    <input type="text" id="patch" value="01 23 45"/>
+    <br/>
+    <button onclick="applyPatch()">Apply Patch</button>
+
+    <div id="result"></div>
+
+    <script>
+        let fileBuffer = null;
+        let fileName = "";
+
+        // Function to handle file input
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    fileBuffer = new Uint8Array(e.target.result);
+                    fileName = file.name;  // Store the original file name
+                    document.getElementById('result').innerText = "File loaded. Ready to apply patch.";
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // Function to apply the patch
+        function applyPatch() {
+            if (!fileBuffer) {
+                alert("Please upload a file first.");
+                return;
+            }
+
+            // Get the offset and patch input
+            const offsetInput = document.getElementById('offset').value;
+            const patchInput = document.getElementById('patch').value;
+
+            // Convert offset from hex to decimal
+            const offset = parseInt(offsetInput, 16);
+            if (isNaN(offset)) {
+                alert("Invalid offset.");
+                return;
+            }
+
+            // Convert patch from hex string to bytes
+            const patch = patchInput.split(' ').map(byte => parseInt(byte, 16));
+            if (patch.some(isNaN)) {
+                alert("Invalid patch data.");
+                return;
+            }
+
+            // Apply the patch to the specified offset
+            for (let i = 0; i < patch.length; i++) {
+                if (offset + i < fileBuffer.length) {
+                    fileBuffer[offset + i] = patch[i];
+                } else {
+                    alert("Patch goes beyond file size.");
+                    return;
+                }
+            }
+
+            // Provide the patched file for download with the original name
+            const patchedBlob = new Blob([fileBuffer], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(patchedBlob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = fileName;  // Use the original file name for the patched file
+            downloadLink.innerText = "Download Patched File";
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').appendChild(downloadLink);
+        }
+    </script>
+</body>
+</html>
